@@ -1,6 +1,13 @@
 spring:
   application:
     name: ai-code-backend
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.179.127:3306/ai_code
+    username: root
+    password: 123
+
 server:
   port: 8123
   servlet:
