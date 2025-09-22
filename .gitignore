@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### CUSTOM ###
+application-local.yml
+tmp
+
 ### STS ###
 .apt_generated
 .classpath
