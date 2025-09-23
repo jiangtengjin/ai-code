@@ -24,7 +24,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> result = aiCodeGeneratorFacade.generateAndSaveCodeStream("任务记录网站", CodeGenTypeEnum.MULTI_FILE);
+        Flux<String> result = aiCodeGeneratorFacade.generateAndSaveCodeStream("个人介绍网站", CodeGenTypeEnum.HTML);
         // 阻塞等待所有数据收集完成
         List<String> block = result.collectList().block();
         Assertions.assertNotNull(block);
