@@ -2,6 +2,7 @@ package com.xhh.aicode.core.saver;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.xhh.aicode.constant.AppConstant;
 import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.exception.ThrowUtils;
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 public abstract class CodeFileSaverTemplate<T> {
 
     // 文件保存根目录
-    private static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
+    private static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
 
     public final File saveCode(T result, Long appId){
         // 1. 验证输入
