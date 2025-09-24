@@ -2,6 +2,7 @@ package com.xhh.aicode.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.xhh.aicode.annotation.AuthCheck;
@@ -17,26 +18,23 @@ import com.xhh.aicode.model.dto.app.AppAddRequest;
 import com.xhh.aicode.model.dto.app.AppAdminUpdateRequest;
 import com.xhh.aicode.model.dto.app.AppQueryRequest;
 import com.xhh.aicode.model.dto.app.AppUpdateRequest;
+import com.xhh.aicode.model.entity.App;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.enums.CodeGenTypeEnum;
 import com.xhh.aicode.model.vo.AppVO;
+import com.xhh.aicode.service.AppService;
 import com.xhh.aicode.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.xhh.aicode.model.entity.App;
-import com.xhh.aicode.service.AppService;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 应用 控制层。
@@ -52,6 +50,45 @@ public class AppController {
 
     @Resource
     private UserService userService;
+
+    /**
+     * 应用聊天生成代码（流式 SSE）
+     * @param appId     应用 id
+     * @param message   用户消息
+     * @param request   http 请求
+     * @return          流式响应对象
+     */
+    @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> chatToGenCode(
+            @RequestParam Long appId,
+            @RequestParam String message,
+            HttpServletRequest request) {
+        // 参数校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用service生成代码
+        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser);
+        // 转换成 ServerSentEvent 格式
+        return contentFlux
+                // 将内容包装成JSON对象
+                .map(chunk -> {
+                    Map<String, String> wrapper = Map.of("d", chunk);
+                    String jsonData = JSONUtil.toJsonStr(wrapper);
+                    return ServerSentEvent.<String>builder()
+                            .data(jsonData)
+                            .build();
+                })
+                .concatWith(Mono.just(
+                        // 发送结束事件
+                        ServerSentEvent.<String>builder()
+                                .event("done")
+                                .data("")
+                                .build()
+                ));
+    }
+
 
     /**
      * 创建应用
@@ -142,7 +179,7 @@ public class AppController {
     /**
      * 根据 id 获取应用详情
      *
-     * @param id      应用 id
+     * @param id 应用 id
      * @return 应用详情
      */
     @GetMapping("/get/vo")
@@ -288,7 +325,6 @@ public class AppController {
         // 获取封装类
         return ResultUtils.success(appService.getAppVO(app));
     }
-
 
 
 }

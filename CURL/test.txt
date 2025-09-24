@@ -1,0 +1,17 @@
+# 1. 用户登录
+curl -X POST "http://localhost:8123/api/user/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userAccount": "jiangtengjin",
+    "userPassword": "12345678"
+  }' \
+  -c cookies.txt
+
+# 2. 调用生成代码接口（流式）
+curl -G "http://localhost:8123/api/app/chat/gen/code" \
+  --data-urlencode "appId=328394935663431680" \
+  --data-urlencode "message=个人记事本系统，代码量不超过50行" \
+  -H "Accept: text/event-stream" \
+  -H "Cache-Control: no-cache" \
+  -b cookies.txt \
+  --no-buffer

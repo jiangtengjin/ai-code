@@ -4,7 +4,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.xhh.aicode.model.dto.app.AppQueryRequest;
 import com.xhh.aicode.model.entity.App;
+import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.vo.AppVO;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -14,6 +16,16 @@ import java.util.List;
  * @author <a href="https://github.com/jiangtengjin">xhh</a>
  */
 public interface AppService extends IService<App> {
+
+    /**
+     * 通过对话生成应用
+     *
+     * @param appId     应用 id
+     * @param message   用户提示词
+     * @param loginUser 登录用户
+     * @return          响应流
+     */
+    Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
     /**
      * 获取应用信息（脱敏后）
