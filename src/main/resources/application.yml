@@ -1,6 +1,18 @@
 spring:
   application:
     name: ai-code-backend
+  # session
+  session:
+    store-type: redis
+    # session 30 天后过期
+    timeout: 2592000
+  # redis
+  data:
+    redis:
+      host: 192.168.179.127
+      port: 6379
+      password:
+      ttl: 3600
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -13,6 +25,10 @@ server:
   port: 8123
   servlet:
     context-path: /api
+    # cookie 30 天后过期
+    session:
+      cookie:
+        max-age: 2592000
 # springdoc-openapi
 springdoc:
   group-configs:

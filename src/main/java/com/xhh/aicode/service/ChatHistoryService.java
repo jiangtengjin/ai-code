@@ -6,6 +6,7 @@ import com.mybatisflex.core.service.IService;
 import com.xhh.aicode.model.dto.chatHistory.ChatHistoryQueryRequest;
 import com.xhh.aicode.model.entity.ChatHistory;
 import com.xhh.aicode.model.entity.User;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +27,16 @@ public interface ChatHistoryService extends IService<ChatHistory> {
      * @return
      */
     boolean addChatMessage(Long appId, String message, String messageType, Long userId);
+
+    /**
+     *  加载对话历史到内存
+     *
+     * @param appId         应用ID
+     * @param chatMemory
+     * @param maxCount      最多加载历史的条数
+     * @return              成功加载历史的条数
+     */
+    int loadChatHistoryToMemory(long appId, MessageWindowChatMemory chatMemory, int maxCount);
 
     /**
      * 根据应用ID查询对话历史（游标）

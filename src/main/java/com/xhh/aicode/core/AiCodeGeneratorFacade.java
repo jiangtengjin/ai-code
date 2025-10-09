@@ -2,6 +2,7 @@ package com.xhh.aicode.core;
 
 import cn.hutool.core.util.ObjUtil;
 import com.xhh.aicode.ai.AiCodeGeneratorService;
+import com.xhh.aicode.ai.AiCodeGeneratorServiceFactory;
 import com.xhh.aicode.ai.model.HtmlCodeResult;
 import com.xhh.aicode.ai.model.MultiFileCodeResult;
 import com.xhh.aicode.core.parser.CodeParserExecutor;
@@ -25,7 +26,7 @@ import java.io.File;
 public class AiCodeGeneratorFacade {
 
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
 
     /**
      * 统一的入口，根据类型生成并保存代码
@@ -38,10 +39,12 @@ public class AiCodeGeneratorFacade {
         ThrowUtils.throwIf(ObjUtil.isEmpty(codeGenTypeEnum), ErrorCode.SYSTEM_ERROR, "生成类型为空");
         return switch (codeGenTypeEnum) {
             case HTML -> {
+                AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.createAiCodeGeneratorService(appId);
                 HtmlCodeResult codeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
                 yield CodeFileSaverExecutor.executeCodeSave(codeResult, codeGenTypeEnum, appId);
             }
             case MULTI_FILE -> {
+                AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.createAiCodeGeneratorService(appId);
                 MultiFileCodeResult codeResult = aiCodeGeneratorService.generateMultiFileCode(userMessage);
                 yield CodeFileSaverExecutor.executeCodeSave(codeResult, codeGenTypeEnum, appId);
             }
@@ -63,10 +66,12 @@ public class AiCodeGeneratorFacade {
         ThrowUtils.throwIf(ObjUtil.isEmpty(codeGenTypeEnum), ErrorCode.SYSTEM_ERROR, "生成类型为空");
         return switch (codeGenTypeEnum) {
             case HTML -> {
+                AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.createAiCodeGeneratorService(appId);
                 Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
                 yield processCodeStream(codeStream, codeGenTypeEnum, appId);
             }
             case MULTI_FILE -> {
+                AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.createAiCodeGeneratorService(appId);
                 Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
                 yield processCodeStream(codeStream, codeGenTypeEnum, appId);
             }
