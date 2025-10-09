@@ -2,7 +2,7 @@ package com.xhh.aicode.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.xhh.aicode.model.dto.UserQueryRequest;
+import com.xhh.aicode.model.dto.user.UserQueryRequest;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.vo.LoginUserVO;
 import com.xhh.aicode.model.vo.UserVO;

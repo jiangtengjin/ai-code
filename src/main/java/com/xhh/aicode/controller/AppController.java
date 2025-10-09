@@ -48,6 +48,9 @@ public class AppController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private com.xhh.aicode.service.ChatHistoryService chatHistoryService;
+
     /**
      * 应用聊天生成代码（流式 SSE）
      * @param appId     应用 id

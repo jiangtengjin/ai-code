@@ -11,7 +11,7 @@ import com.xhh.aicode.constant.UserConstant;
 import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.exception.ThrowUtils;
-import com.xhh.aicode.model.dto.*;
+import com.xhh.aicode.model.dto.user.*;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.vo.LoginUserVO;
 import com.xhh.aicode.model.vo.UserVO;
