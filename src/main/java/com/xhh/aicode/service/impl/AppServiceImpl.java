@@ -206,6 +206,48 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         return super.removeById(id);
     }
 
+    /**
+     * 删除应用关联的本地资源目录（生成输出与部署目录）
+     * 输出目录: CODE_OUTPUT_ROOT_DIR + "/" + codeGenType + id
+     * 部署目录: CODE_DEPLOY_ROOT_DIR + "/" + deployKey
+     * 失败仅记录日志，不抛出异常
+     */
+    @Override
+    public void deleteAppResources(App app) {
+        if (app == null) {
+            return;
+        }
+        String codeType = app.getCodeGenType();
+        String deployKey = app.getDeployKey();
+        Long appId = app.getId();
+
+        // 删除输出目录
+        if (codeType != null && appId != null) {
+            String outputDir = AppConstant.CODE_OUTPUT_ROOT_DIR + "/" + codeType + "_" + appId;
+            try {
+                if (FileUtil.exist(outputDir)) {
+                    FileUtil.del(new File(outputDir));
+                    log.info("已删除输出目录: {}", outputDir);
+                }
+            } catch (Exception e) {
+                log.warn("删除输出目录失败, path={}, err={}", outputDir, e.getMessage(), e);
+            }
+        }
+
+        // 删除部署目录
+        if (StrUtil.isNotBlank(deployKey)) {
+            String deployDir = AppConstant.CODE_DEPLOY_ROOT_DIR + "/" + deployKey;
+            try {
+                if (FileUtil.exist(deployDir)) {
+                    FileUtil.del(new File(deployDir));
+                    log.info("已删除部署目录: {}", deployDir);
+                }
+            } catch (Exception e) {
+                log.warn("删除部署目录失败, path={}, err={}", deployDir, e.getMessage(), e);
+            }
+        }
+    }
+
     @Override
     public QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest) {
         if (appQueryRequest == null) {

@@ -53,4 +53,12 @@ public interface AppService extends IService<App> {
      * @return                  分页查询的 queryWrapper 对象
      */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
+
+    /**
+     * 删除应用关联的本地资源目录（生成输出与部署目录）
+     * 失败仅记录日志，不抛出异常
+     *
+     * @param app 应用实体
+     */
+    void deleteAppResources(App app);
 }

@@ -23,6 +23,7 @@ import com.xhh.aicode.service.AppService;
 import com.xhh.aicode.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ import java.util.Map;
  *
  * @author <a href="https://github.com/jiangtengjin">xhh</a>
  */
+@Slf4j
 @RestController
 @RequestMapping("/app")
 public class AppController {
@@ -193,6 +195,14 @@ public class AppController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = appService.removeById(id);
+        if (result) {
+            // 删除项目资源目录（忽略异常，记录日志）
+            try {
+                appService.deleteAppResources(oldApp);
+            } catch (Exception e) {
+                log.warn("删除应用资源目录失败, appId={}, err={}", oldApp.getId(), e.getMessage(), e);
+            }
+        }
         return ResultUtils.success(result);
     }
 
@@ -280,8 +290,17 @@ public class AppController {
         App oldApp = appService.getById(id);
         ThrowUtils.throwIf(oldApp == null, ErrorCode.NOT_FOUND_ERROR);
         boolean result = appService.removeById(id);
+        if (result) {
+            // 删除项目资源目录（忽略异常，记录日志）
+            try {
+                appService.deleteAppResources(oldApp);
+            } catch (Exception e) {
+                log.warn("管理员删除应用资源目录失败, appId={}, err={}", oldApp.getId(), e.getMessage(), e);
+            }
+        }
         return ResultUtils.success(result);
     }
+
 
     /**
      * 管理员更新应用
