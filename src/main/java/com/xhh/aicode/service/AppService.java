@@ -2,6 +2,7 @@ package com.xhh.aicode.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.xhh.aicode.model.dto.app.AppAddRequest;
 import com.xhh.aicode.model.dto.app.AppQueryRequest;
 import com.xhh.aicode.model.entity.App;
 import com.xhh.aicode.model.entity.User;
@@ -26,6 +27,15 @@ public interface AppService extends IService<App> {
      * @return          响应流
      */
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
+
+    /**
+     * 创建应用
+     *
+     * @param appAddRequest   应用信息
+     * @param loginUser       登录用户
+     * @return                应用 id
+     */
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 
     /**
      * 部署服务
