@@ -2,7 +2,7 @@ package com.xhh.aicode.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.xhh.aicode.ai.tools.FileWriteTool;
+import com.xhh.aicode.ai.tools.*;
 import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.model.enums.CodeGenTypeEnum;
@@ -41,6 +41,9 @@ public class AiCodeGeneratorServiceFactory {
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private ToolManager toolManager;
 
     /**
      * AI 服务实例缓存
@@ -102,7 +105,7 @@ public class AiCodeGeneratorServiceFactory {
                     AiServices.builder(AiCodeGeneratorService.class)
                             .streamingChatModel(reasoningStreamingChatModel)
                             .chatMemoryProvider(memoryId -> chatMemory)
-                            .tools(new FileWriteTool())
+                            .tools(toolManager.getAllTools())
                             .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                                     toolExecutionRequest, "Error: there is no tool named " + toolExecutionRequest.name()
                             ))
