@@ -1,5 +1,6 @@
 package com.xhh.aicode.langgraph4j.state;
 
+import com.xhh.aicode.langgraph4j.model.ImageCollectionPlan;
 import com.xhh.aicode.langgraph4j.model.ImageResource;
 import com.xhh.aicode.langgraph4j.model.QualityResult;
 import com.xhh.aicode.model.enums.CodeGenTypeEnum;
@@ -81,6 +82,21 @@ public class WorkflowContext implements Serializable {
      * 连续质检失败计数，用于防止死循环
      */
     private Integer qualityFailCount;
+
+    /**
+     * 图片收集计划
+     */
+    private ImageCollectionPlan imageCollectionPlan;
+
+
+    /**
+     * 并发图片收集的中间结果字段
+     */
+    private List<ImageResource> contentImages;
+    private List<ImageResource> illustrations;
+    private List<ImageResource> diagrams;
+    private List<ImageResource> logos;
+
 
     private static final long serialVersionUID = 1L;
 
