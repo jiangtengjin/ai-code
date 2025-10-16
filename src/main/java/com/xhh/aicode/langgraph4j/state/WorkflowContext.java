@@ -1,6 +1,7 @@
 package com.xhh.aicode.langgraph4j.state;
 
 import com.xhh.aicode.langgraph4j.model.ImageResource;
+import com.xhh.aicode.langgraph4j.model.QualityResult;
 import com.xhh.aicode.model.enums.CodeGenTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +72,16 @@ public class WorkflowContext implements Serializable {
      */
     private String errorMessage;
 
-    @Serial
+    /**
+     * 质量检查结果
+     */
+    private QualityResult qualityResult;
+
+    /**
+     * 连续质检失败计数，用于防止死循环
+     */
+    private Integer qualityFailCount;
+
     private static final long serialVersionUID = 1L;
 
     // ========== 上下文操作方法 ==========
@@ -88,6 +97,6 @@ public class WorkflowContext implements Serializable {
      * 将 WorkflowContext 保存到 MessagesState 中
      */
     public static Map<String, Object> saveContext(WorkflowContext context) {
-        return Map.of(WORKFLOW_CONTEXT_KEY, context);
+        return java.util.Collections.singletonMap(WORKFLOW_CONTEXT_KEY, context);
     }
 }

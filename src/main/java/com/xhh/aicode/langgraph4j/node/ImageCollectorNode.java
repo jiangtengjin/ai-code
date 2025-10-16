@@ -26,7 +26,6 @@ public class ImageCollectorNode {
                 ImageCollectionService imageCollectionService = SpringContextUtil.getBean(ImageCollectionService.class);
                 // 使用 AI 服务进行智能图片收集
                 imageListStr = imageCollectionService.collectImages(originalPrompt);
-                imageCollectionService.collectImages(originalPrompt);
             } catch (Exception e) {
                 log.error("图片收集失败: {}", e.getMessage(), e);
             }
