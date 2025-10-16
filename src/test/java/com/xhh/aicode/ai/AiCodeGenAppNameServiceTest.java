@@ -10,12 +10,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 class AiCodeGenAppNameServiceTest {
 
     @Resource
-    private AiCodeGenAppNameService aiCodeGenAppNameService;
+    private AiCodeGenTypeAppNameServiceFactory aiCodeGenTypeAppNameServiceFactory;
 
     @Test
     void appNameCodeGenType() {
 
         String userPrompt = "做一个简单的个人介绍页面";
+        AiCodeGenAppNameService aiCodeGenAppNameService = aiCodeGenTypeAppNameServiceFactory.createAiCodeGenAppNameService();
         String result = aiCodeGenAppNameService.appNameCodeGenType(userPrompt);
         log.info("用户需求: {} -> {}", userPrompt, result);
 

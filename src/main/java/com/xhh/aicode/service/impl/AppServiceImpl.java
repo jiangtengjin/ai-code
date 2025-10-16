@@ -9,7 +9,9 @@ import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.xhh.aicode.ai.AiCodeGenAppNameService;
+import com.xhh.aicode.ai.AiCodeGenTypeAppNameServiceFactory;
 import com.xhh.aicode.ai.AiCodeGenTypeRoutingService;
+import com.xhh.aicode.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.xhh.aicode.constant.AppConstant;
 import com.xhh.aicode.core.AiCodeGeneratorFacade;
 import com.xhh.aicode.core.builder.VueProjectBuilder;
@@ -72,10 +74,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private ScreenshotService screenshotService;
 
     @Resource
-    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
+    private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
     @Resource
-    private AiCodeGenAppNameService aiCodeGenAppNameService;
+    private AiCodeGenTypeAppNameServiceFactory aiCodeGenTypeAppNameServiceFactory;
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
@@ -111,9 +113,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         BeanUtil.copyProperties(appAddRequest, app);
         app.setUserId(loginUser.getId());
         // 使用 AI 智能生成应用名称
+        AiCodeGenAppNameService aiCodeGenAppNameService = aiCodeGenTypeAppNameServiceFactory.createAiCodeGenAppNameService();
         String appName = aiCodeGenAppNameService.appNameCodeGenType(initPrompt);
         app.setAppName(appName);
-        // 使用 AI 智能选择代码生成类型
+        // 使用 AI 智能选择代码生成类型(多例模式)
+        AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService =
+                aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
         CodeGenTypeEnum codeGenTypeEnum = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
         app.setCodeGenType(codeGenTypeEnum.getValue());
         // 插入数据库
