@@ -18,6 +18,8 @@ import com.xhh.aicode.model.dto.app.*;
 import com.xhh.aicode.model.entity.App;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.vo.AppVO;
+import com.xhh.aicode.rateLimiter.annotation.RateLimit;
+import com.xhh.aicode.rateLimiter.enums.RateLimitType;
 import com.xhh.aicode.service.AppService;
 import com.xhh.aicode.service.ProjectDownloadService;
 import com.xhh.aicode.service.UserService;
@@ -64,6 +66,7 @@ public class AppController {
      * @return          流式响应对象
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "Ai 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGenCode(
             @RequestParam Long appId,
             @RequestParam String message,

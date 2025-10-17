@@ -114,6 +114,12 @@
             <artifactId>dashscope-sdk-java</artifactId>
             <version>2.21.1</version>
         </dependency>
+        <!-- Redisson -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.50.0</version>
+        </dependency>
 
         <!-- caffeine 本地缓存 -->
         <dependency>
