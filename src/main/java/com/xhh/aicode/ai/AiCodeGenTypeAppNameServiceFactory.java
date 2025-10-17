@@ -1,5 +1,6 @@
 package com.xhh.aicode.ai;
 
+import com.xhh.aicode.ai.guaidrail.PromptSafetyInputGuardrail;
 import com.xhh.aicode.utils.SpringContextUtil;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
@@ -22,6 +23,7 @@ public class AiCodeGenTypeAppNameServiceFactory {
         ChatModel chatModel = SpringContextUtil.getBean("appNameChatModelPrototype", ChatModel.class);
         return AiServices.builder(AiCodeGenAppNameService.class)
                 .chatModel(chatModel)
+                .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
                 .build();
     }
 
