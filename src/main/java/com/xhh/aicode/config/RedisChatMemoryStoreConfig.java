@@ -1,5 +1,6 @@
 package com.xhh.aicode.config;
 
+import cn.hutool.core.util.StrUtil;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,13 +25,17 @@ public class RedisChatMemoryStoreConfig {
     private long ttl;
 
     @Bean
-    public RedisChatMemoryStore redisChatMemoryStore(){
-        return RedisChatMemoryStore.builder()
+    public RedisChatMemoryStore redisChatMemoryStore() {
+        RedisChatMemoryStore.Builder builder = RedisChatMemoryStore.builder()
                 .host(host)
                 .port(port)
                 .password(password)
-                .ttl(ttl)
-                .build();
+                .ttl(ttl);
+        if (StrUtil.isNotBlank(password)) {
+            builder.user("default");
+        }
+        return builder.build();
     }
+
 
 }
