@@ -2,6 +2,7 @@ package com.xhh.aicode.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.xhh.aicode.model.dto.user.UserLoginRequest;
 import com.xhh.aicode.model.dto.user.UserQueryRequest;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.vo.LoginUserVO;
@@ -31,12 +32,11 @@ public interface UserService extends IService<User> {
     /**
      * 用户登录
      *
-     * @param userAccount  用户账户
-     * @param userPassword 用户密码
-     * @param request
+     * @param userLoginRequest  用户登录请求
+     * @param request           HttpServletRequest
      * @return 脱敏后的用户信息
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    LoginUserVO userLogin(UserLoginRequest userLoginRequest, HttpServletRequest request);
 
     /**
      * 获取当前登录用户

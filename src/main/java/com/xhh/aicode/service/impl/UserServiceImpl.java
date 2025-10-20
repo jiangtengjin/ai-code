@@ -5,8 +5,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.xhh.aicode.Captcha.constant.CaptchaConstant;
 import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
+import com.xhh.aicode.exception.ThrowUtils;
+import com.xhh.aicode.model.dto.user.UserLoginRequest;
 import com.xhh.aicode.model.dto.user.UserQueryRequest;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.mapper.UserMapper;
@@ -14,6 +17,8 @@ import com.xhh.aicode.model.enums.UserRoleEnum;
 import com.xhh.aicode.model.vo.LoginUserVO;
 import com.xhh.aicode.model.vo.UserVO;
 import com.xhh.aicode.service.UserService;
+import com.xhh.aicode.utils.RedisCacheUtil;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -31,6 +36,9 @@ import static com.xhh.aicode.constant.UserConstant.USER_LOGIN_STATE;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Resource
+    private RedisCacheUtil redisCacheUtil;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -70,7 +78,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public LoginUserVO userLogin(UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
         // 1. 校验
         if (StrUtil.hasBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -78,6 +88,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userAccount.length() < 4 || userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或者密码错误");
         }
+        // 验证码校验
+        String uuid = userLoginRequest.getUuid();
+        String imageCode = userLoginRequest.getImageCode();
+        ThrowUtils.throwIf(
+                StrUtil.isBlank(imageCode) || imageCode.length() != 6,
+                ErrorCode.PARAMS_ERROR, "验证码错误");
+        String cacheKey = String.format("%s:%s", CaptchaConstant.CAPTCHA_CODE_KEY_PREFIX, uuid);
+        Boolean hasKey = redisCacheUtil.hasKey(cacheKey);
+        ThrowUtils.throwIf(!hasKey, ErrorCode.PARAMS_ERROR, "验证码已过期");
+        String cacheValue = redisCacheUtil.getCacheObject(cacheKey);
+        ThrowUtils.throwIf(!imageCode.equalsIgnoreCase(cacheValue), ErrorCode.PARAMS_ERROR, "验证码错误");
         // 2. 加密
         String encryptPassword = getEncryptPassword(userPassword);
         // 查询用户是否存在
