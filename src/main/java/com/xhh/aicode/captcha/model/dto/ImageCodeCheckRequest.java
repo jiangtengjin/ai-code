@@ -1,4 +1,4 @@
-package com.xhh.aicode.Captcha.model.dto;
+package com.xhh.aicode.captcha.model.dto;
 
 import lombok.Data;
 

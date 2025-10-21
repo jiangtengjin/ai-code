@@ -1,4 +1,4 @@
-package com.xhh.aicode.Captcha.constant;
+package com.xhh.aicode.captcha.constant;
 
 /**
  * 验证码相关常量

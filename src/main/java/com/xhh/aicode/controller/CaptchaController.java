@@ -2,8 +2,8 @@ package com.xhh.aicode.controller;
 
 import cn.hutool.core.codec.Base64;
 import com.google.code.kaptcha.Producer;
-import com.xhh.aicode.Captcha.constant.CaptchaConstant;
-import com.xhh.aicode.Captcha.model.vo.ImageCodeVO;
+import com.xhh.aicode.captcha.constant.CaptchaConstant;
+import com.xhh.aicode.captcha.model.vo.ImageCodeVO;
 import com.xhh.aicode.common.BaseResponse;
 import com.xhh.aicode.common.ResultUtils;
 import com.xhh.aicode.rateLimiter.annotation.RateLimit;

@@ -1,4 +1,4 @@
-package com.xhh.aicode.Captcha.config;
+package com.xhh.aicode.captcha.config;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;

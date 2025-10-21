@@ -1,4 +1,4 @@
-package com.xhh.aicode.model.dto.user;
+package com.xhh.aicode.model.dto;
 
 import com.xhh.aicode.captcha.model.dto.ImageCodeCheckRequest;
 import lombok.Data;

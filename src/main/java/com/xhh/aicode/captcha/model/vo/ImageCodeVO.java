@@ -1,4 +1,4 @@
-package com.xhh.aicode.Captcha.model.vo;
+package com.xhh.aicode.captcha.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
