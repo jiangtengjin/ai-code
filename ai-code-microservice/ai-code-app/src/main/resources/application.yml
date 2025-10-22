@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: ai-code-app
+  # session
+  session:
+    store-type: redis
+    # session 30 天后过期
+    timeout: 2592000
+  # redis
+  data:
+    redis:
+      host: 192.168.179.127
+      port: 6379
+      password:
+      ttl: 3600
+      database: 0
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.179.127:3306/ai_code
+    username: root
+    password: 123
+  profiles:
+    active: local
+server:
+  port: 8127
+  servlet:
+    context-path: /api
+    # cookie 30 天后过期
+    session:
+      cookie:
+        max-age: 2592000
+# springdoc-openapi
+springdoc:
+  group-configs:
+    - group: 'default'
+      packages-to-scan: com.xhh.aicode.controller
+# actuator 配置，暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
