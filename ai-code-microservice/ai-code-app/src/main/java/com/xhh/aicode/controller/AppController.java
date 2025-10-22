@@ -283,7 +283,7 @@ public class AppController {
     @Cacheable(
             value = "good_app_page",
             key = "T(com.xhh.aicode.utils.CacheKeyUtil).generateKey(#appQueryRequest)",
-            condition = "#appQueryRequest.pageSize <= 10"
+            unless = "#appQueryRequest.pageSize <= 10"
     )
     @PostMapping("/good/list/page/vo")
     public BaseResponse<Page<AppVO>> listGoodAppVOByPage(@RequestBody AppQueryRequest appQueryRequest) {
