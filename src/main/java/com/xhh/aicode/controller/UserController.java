@@ -8,6 +8,7 @@ import com.xhh.aicode.common.BaseResponse;
 import com.xhh.aicode.common.DeleteRequest;
 import com.xhh.aicode.common.ResultUtils;
 import com.xhh.aicode.constant.UserConstant;
+import com.xhh.aicode.easyexcel.service.EasyExcelService;
 import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.exception.ThrowUtils;
@@ -34,6 +35,8 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private EasyExcelService easyExcelService;
 
     // 用户注册
     @PostMapping("/register")
@@ -172,5 +175,18 @@ public class UserController {
         List<UserVO> userVOList = userService.getUserVOList(userPage.getRecords());
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
+    }
+
+    /**
+     * 导出用户列表（仅管理员）
+     */
+    @PostMapping("/export")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<String> exportUserList() {
+        List<User> userList = userService.list();
+        // 数据脱敏
+        List<UserVO> userVOList = userService.getUserVOList(userList);
+        String url = easyExcelService.export("user", "", userVOList, UserVO.class);
+        return ResultUtils.success(url);
     }
 }
