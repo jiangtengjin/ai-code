@@ -4,9 +4,11 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.util.ListUtils;
 import com.xhh.aicode.easyexcel.constant.EasyExcelConstant;
 import com.xhh.aicode.easyexcel.entity.DemoData;
-import com.xhh.aicode.easyexcel.entity.IndexOrNameData;
-import com.xhh.aicode.easyexcel.listener.DemoDataListener;
-import com.xhh.aicode.easyexcel.listener.IndexOrNameDataListener;
+import com.xhh.aicode.easyexcel.listener.FileReadListener;
+import com.xhh.aicode.easyexcel.quickstart.listener.DemoDataListener;
+import com.xhh.aicode.model.entity.User;
+import com.xhh.aicode.service.UserService;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +27,9 @@ public class WebScreenshotUtilsTest {
         Assertions.assertNotNull(webPageScreenshot);
     }
 
+    @Resource
+    private UserService userService;
+
     /**
      * 最简单的读
      * <p>
@@ -39,9 +44,9 @@ public class WebScreenshotUtilsTest {
 
         // 有个很重要的点 DemoDataListener 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
         // 写法3：
-        String fileName = EasyExcelConstant.EASY_EXCEL_ROOT_DIR + File.separator + "demo.xlsx";
+        String fileName = EasyExcelConstant.EASY_EXCEL_ROOT_DIR + File.separator + "user.csv";
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
-        EasyExcel.read(fileName, IndexOrNameData.class, new IndexOrNameDataListener()).sheet().doRead();
+        EasyExcel.read(fileName, User.class, new FileReadListener(userService)).sheet().doRead();
     }
 
     /**

@@ -1,18 +1,18 @@
-package com.xhh.aicode.easyexcel.listener;
+package com.xhh.aicode.easyexcel.quickstart.listener;
 
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ListUtils;
-import com.xhh.aicode.easyexcel.dao.DemoDAO;
-import com.xhh.aicode.easyexcel.entity.DemoData;
+import com.xhh.aicode.easyexcel.quickstart.dao.DemoDAO;
+import com.xhh.aicode.easyexcel.entity.IndexOrNameData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 // 有个很重要的点 DemoDataListener 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
 @Slf4j
-public class DemoDataListener implements ReadListener<DemoData> {
+public class IndexOrNameDataListener implements ReadListener<IndexOrNameData> {
 
     /**
      * 每隔5条存储数据库，实际使用中可以100条，然后清理list ，方便内存回收
@@ -21,13 +21,13 @@ public class DemoDataListener implements ReadListener<DemoData> {
     /**
      * 缓存的数据
      */
-    private List<DemoData> cachedDataList = ListUtils.newArrayListWithExpectedSize(BATCH_COUNT);
+    private List<IndexOrNameData> cachedDataList = ListUtils.newArrayListWithExpectedSize(BATCH_COUNT);
     /**
      * 假设这个是一个DAO，当然有业务逻辑这个也可以是一个service。当然如果不用存储这个对象没用。
      */
-    private DemoDAO demoDAO;
+    private DemoDAO<IndexOrNameData> demoDAO;
 
-    public DemoDataListener() {
+    public IndexOrNameDataListener() {
         // 这里是demo，所以随便new一个。实际使用如果到了spring,请使用下面的有参构造函数
         demoDAO = new DemoDAO();
     }
@@ -37,7 +37,7 @@ public class DemoDataListener implements ReadListener<DemoData> {
      *
      * @param demoDAO
      */
-    public DemoDataListener(DemoDAO demoDAO) {
+    public IndexOrNameDataListener(DemoDAO<IndexOrNameData> demoDAO) {
         this.demoDAO = demoDAO;
     }
 
@@ -48,7 +48,7 @@ public class DemoDataListener implements ReadListener<DemoData> {
      * @param context
      */
     @Override
-    public void invoke(DemoData data, AnalysisContext context) {
+    public void invoke(IndexOrNameData data, AnalysisContext context) {
         log.info("解析到一条数据:{}", JSONUtil.toJsonStr(data));
         cachedDataList.add(data);
         // 达到BATCH_COUNT了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
