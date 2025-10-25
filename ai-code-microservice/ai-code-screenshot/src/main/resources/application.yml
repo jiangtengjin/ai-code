@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ai-code-screenshot
+  profiles:
+    active: local
+server:
+  port: 8127
+  servlet:
+    context-path: /api
