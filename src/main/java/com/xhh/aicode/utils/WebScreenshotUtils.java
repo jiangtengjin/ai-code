@@ -24,18 +24,34 @@ import java.util.UUID;
 @Slf4j
 public class WebScreenshotUtils {
 
-    private static final WebDriver webDriver;
+    // 可以使用 ThreadLocal 来解决多线程共享一个 webDriver 的问题
+    private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
 
-    static {
-        final int DEFAULT_WIDTH = 1600;
-        final int DEFAULT_HEIGHT = 900;
-        webDriver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    private static final int DEFAULT_WIDTH = 1600;
+    private static final int DEFAULT_HEIGHT = 900;
+
+    public static WebDriver getDriver() {
+        WebDriver driver = driverThreadLocal.get();
+        if (driver == null) {
+            driver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            driverThreadLocal.set(driver);
+        }
+        return driver;
     }
 
-    @PreDestroy
-    public void destroy() {
-        webDriver.quit();
-    }
+    // 危险：多线程共享一个 webDriver
+//    private static final WebDriver webDriver;
+//
+//    static {
+//        final int DEFAULT_WIDTH = 1600;
+//        final int DEFAULT_HEIGHT = 900;
+//        webDriver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+//    }
+//
+//    @PreDestroy
+//    public void destroy() {
+//        webDriver.quit();
+//    }
 
     /**
      * 生成网页截图并保存
@@ -48,6 +64,7 @@ public class WebScreenshotUtils {
             log.error("网页 URL 不能为空");
             return null;
         }
+        WebDriver driver = null;
         try {
             // 创建临时目录
             String rootPath = System.getProperty("user.dir") + File.separator + "tmp" + File.separator + "screenshots"
@@ -57,11 +74,13 @@ public class WebScreenshotUtils {
             // 原始截图文件路径
             String imageSavePath = rootPath + File.separator + RandomUtil.randomString(5) + IMAGE_SUFFIX;
             // 访问网页
-            webDriver.get(webUrl);
+//            webDriver.get(webUrl);
+            driver = getDriver();
+            driver.get(webUrl);
             // 等待页面加载完成
-            waitForPageLoad(webDriver);
+            waitForPageLoad(driver);
             // 截图
-            byte[] screenshotBytes = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+            byte[] screenshotBytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             // 保存原始图片
             saveImage(screenshotBytes, imageSavePath);
             log.info("原始截图保存成功：{}", imageSavePath);
@@ -76,6 +95,10 @@ public class WebScreenshotUtils {
         } catch (Exception e) {
             log.error("网页截图失败：{}", webUrl, e);
             return null;
+        } finally {
+            // 释放资源
+            driver.quit();
+            driverThreadLocal.remove();
         }
     }
 
