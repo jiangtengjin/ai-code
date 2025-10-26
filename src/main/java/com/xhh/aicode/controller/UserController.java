@@ -2,6 +2,7 @@ package com.xhh.aicode.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.xhh.aicode.annotation.AuthCheck;
 import com.xhh.aicode.common.BaseResponse;
@@ -187,6 +188,7 @@ public class UserController {
         // 数据脱敏
         List<UserVO> userVOList = userService.getUserVOList(userList);
         String url = easyExcelService.export("user", "", userVOList, UserVO.class);
+        ThrowUtils.throwIf(StrUtil.isBlank(url), ErrorCode.SYSTEM_ERROR, "导出文件失败");
         return ResultUtils.success(url);
     }
 }

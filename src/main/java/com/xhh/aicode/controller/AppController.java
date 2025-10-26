@@ -11,6 +11,7 @@ import com.xhh.aicode.common.DeleteRequest;
 import com.xhh.aicode.common.ResultUtils;
 import com.xhh.aicode.constant.AppConstant;
 import com.xhh.aicode.constant.UserConstant;
+import com.xhh.aicode.easyexcel.service.EasyExcelService;
 import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.exception.ThrowUtils;
@@ -36,8 +37,10 @@ import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 应用 控制层。
@@ -57,6 +60,9 @@ public class AppController {
 
     @Resource
     private ProjectDownloadService projectDownloadService;
+
+    @Resource
+    private EasyExcelService easyExcelService;
 
     /**
      * 应用聊天生成代码（流式 SSE）
@@ -399,5 +405,25 @@ public class AppController {
         return ResultUtils.success(appService.getAppVO(app));
     }
 
+    /**
+     * 导出应用列表（仅管理员）
+     */
+    @PostMapping("/export")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<String> exportAppList() {
+        List<App> appList = appService.list();
+        // 数据脱敏
+        List<AppVO> appVOList = appService.getAppVOList(appList);
+        // 指定不需要导出的列
+        Set<String> excludeFields = new HashSet<>();
+        excludeFields.add("userId");
+        excludeFields.add("deployKey");
+        excludeFields.add("updateTime");
+        // 导出
+        String url = easyExcelService.exportExcludeColumn("app2", "", appVOList,
+                AppVO.class, excludeFields);
+        ThrowUtils.throwIf(StrUtil.isBlank(url), ErrorCode.SYSTEM_ERROR, "导出文件失败");
+        return ResultUtils.success(url);
+    }
 
 }
