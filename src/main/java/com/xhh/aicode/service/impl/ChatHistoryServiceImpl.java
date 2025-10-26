@@ -1,29 +1,37 @@
 package com.xhh.aicode.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.xhh.aicode.constant.UserConstant;
+import com.xhh.aicode.exception.BusinessException;
 import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.exception.ThrowUtils;
+import com.xhh.aicode.mapper.ChatHistoryMapper;
 import com.xhh.aicode.model.dto.chatHistory.ChatHistoryQueryRequest;
 import com.xhh.aicode.model.entity.App;
 import com.xhh.aicode.model.entity.ChatHistory;
-import com.xhh.aicode.mapper.ChatHistoryMapper;
 import com.xhh.aicode.model.entity.User;
 import com.xhh.aicode.model.enums.ChatHistoryMessageTypeEnum;
 import com.xhh.aicode.service.AppService;
 import com.xhh.aicode.service.ChatHistoryService;
+import com.xhh.aicode.service.UserService;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,6 +47,9 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
     @Resource
     @Lazy
     private AppService appService;
+
+    @Resource
+    private UserService userService;
 
     @Override
     public boolean addChatMessage(Long appId, String message, String messageType, Long userId) {
@@ -114,6 +125,59 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
         QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
         // 查询数据
         return this.page(Page.of(1, pageSize), queryWrapper);
+    }
+
+    @Override
+    public void exportMarkdown(Long appId, HttpServletRequest request, HttpServletResponse response) {
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(ObjectUtil.isEmpty(loginUser), ErrorCode.NOT_LOGIN_ERROR);
+        // 查询数据
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .eq(ChatHistory::getAppId, appId)
+                .eq(ChatHistory::getUserId, loginUser.getId())
+                .orderBy(ChatHistory::getCreateTime, true);
+        List<ChatHistory> chatHistories = this.list(queryWrapper);
+        ThrowUtils.throwIf(CollUtil.isEmpty(chatHistories), ErrorCode.NOT_FOUND_ERROR);
+        // 构建文件
+        log.info("开始构建 MarkDown 文件");
+        StringBuilder md = new StringBuilder();
+        // 标题
+        md.append("# ").append("对话历史记录\n\n");
+        // 对话内容
+        int turn = 1;
+        for (int i = 0; i < chatHistories.size(); i++) {
+            if (i == 0) {
+                md.append("## 对话").append(turn++).append("\n\n");
+            }
+            md.append("**")
+                    .append(chatHistories.get(i).getMessageType())
+                    .append("**: ")
+                    .append(chatHistories.get(i).getMessage())
+                    .append("\n\n");
+        }
+        // 元信息
+        md.append("---\n")
+                .append("*导出时间: ").append(LocalDateTime.now()).append("*\n");
+        log.info("构建 MarkDown 文件完成，开始写入");
+        try {
+            // 设置响应头
+            response.setContentType("text/markdown; charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            String fileName = String.format("chat_history_%s.%s", appId, "md");
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+                    .replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=" + encodedFileName);
+
+            // 写入内容
+            response.getOutputStream().write(md.toString().getBytes(StandardCharsets.UTF_8));
+            response.getOutputStream().flush();
+            log.info("写入完成");
+        } catch (IOException e) {
+            log.error("导出 markdown 文件失败", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "markdown 文件导出失败");
+        }
     }
 
 

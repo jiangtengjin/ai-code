@@ -15,6 +15,7 @@ import com.xhh.aicode.service.ChatHistoryService;
 import com.xhh.aicode.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -71,5 +72,17 @@ public class ChatHistoryController {
         return ResultUtils.success(result);
     }
 
-
+    /**
+     * 导出所有对话历史（管理员）
+     *
+     * @param appId 应用 id
+     * @param response 响应
+     * @return
+     */
+    @GetMapping("/export/{appId}")
+    public void exportAllChatHistory(@PathVariable Long appId,
+                                                                HttpServletRequest request,
+                                                                HttpServletResponse response) {
+        chatHistoryService.exportMarkdown(appId, request, response);
+    }
 }

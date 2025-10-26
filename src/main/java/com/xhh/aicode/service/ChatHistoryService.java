@@ -7,6 +7,8 @@ import com.xhh.aicode.model.dto.chatHistory.ChatHistoryQueryRequest;
 import com.xhh.aicode.model.entity.ChatHistory;
 import com.xhh.aicode.model.entity.User;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
 
@@ -50,6 +52,15 @@ public interface ChatHistoryService extends IService<ChatHistory> {
     Page<ChatHistory> listAppChatHistoryByPage(Long appId, int pageSize,
                                                LocalDateTime lastCreateTime,
                                                User loginUser);
+
+    /**
+     * 导出对话历史为 markdown
+     *
+     * @param appId         应用id
+     * @param request
+     * @param response
+     */
+    void exportMarkdown(Long appId, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 根据应用ID删除对话历史
