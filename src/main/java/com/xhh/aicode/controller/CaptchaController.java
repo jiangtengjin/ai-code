@@ -6,6 +6,8 @@ import com.xhh.aicode.captcha.constant.CaptchaConstant;
 import com.xhh.aicode.captcha.model.vo.ImageCodeVO;
 import com.xhh.aicode.common.BaseResponse;
 import com.xhh.aicode.common.ResultUtils;
+import com.xhh.aicode.exception.BusinessException;
+import com.xhh.aicode.exception.ErrorCode;
 import com.xhh.aicode.rateLimiter.annotation.RateLimit;
 import com.xhh.aicode.rateLimiter.enums.RateLimitType;
 import com.xhh.aicode.utils.RedisCacheUtil;
@@ -52,7 +54,7 @@ public class CaptchaController {
         try {
             ImageIO.write(image, "jpg", os);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成验证码失败");
         }
         //将验证码图片转换为Base64编码格式,将UUID和Base64编码后的图片添加到响应对象并返回
         ImageCodeVO imageCodeVO = ImageCodeVO.builder()

@@ -415,7 +415,7 @@ public class AppController {
         // 数据脱敏
         List<AppVO> appVOList = appService.getAppVOList(appList);
         // 指定不需要导出的列
-        Set<String> excludeFields = new HashSet<>();
+        Set<String> excludeFields = new HashSet<>(3);
         excludeFields.add("userId");
         excludeFields.add("deployKey");
         excludeFields.add("updateTime");
